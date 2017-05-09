@@ -44,11 +44,14 @@ public class WebRtcClient {
     }
 
     private interface Command{
+
         void execute(String peerId, JSONObject payload) throws JSONException;
     }
 
     private class CreateOfferCommand implements Command{
+
         public void execute(String peerId, JSONObject payload) throws JSONException {
+
             Log.d(TAG,"CreateOfferCommand");
             Peer peer = peers.get(peerId);
             peer.pc.createOffer(peer, pcConstraints);
@@ -56,6 +59,7 @@ public class WebRtcClient {
     }
 
     private class CreateAnswerCommand implements Command{
+
         public void execute(String peerId, JSONObject payload) throws JSONException {
             Log.d(TAG,"CreateAnswerCommand");
             Peer peer = peers.get(peerId);
@@ -70,9 +74,11 @@ public class WebRtcClient {
 
     private class SetRemoteSDPCommand implements Command{
         public void execute(String peerId, JSONObject payload) throws JSONException {
+
             Log.d(TAG,"SetRemoteSDPCommand");
             Peer peer = peers.get(peerId);
             SessionDescription sdp = new SessionDescription(
+
                     SessionDescription.Type.fromCanonicalForm(payload.getString("type")),
                     payload.getString("sdp")
             );

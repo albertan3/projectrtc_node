@@ -1,10 +1,14 @@
 package fr.pchab.androidrtc;
 
+import android.Manifest;
 import android.app.Activity;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.graphics.Point;
 import android.opengl.GLSurfaceView;
 import android.os.Bundle;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
 import android.view.Window;
 import android.view.WindowManager.LayoutParams;
 import android.widget.Toast;
@@ -44,9 +48,33 @@ public class RtcActivity extends Activity implements WebRtcClient.RtcListener {
     private String mSocketAddress;
     private String callerId;
 
+
+    private int MY_PERMISSIONS_REQUEST_READ_CONTACTS=0;
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+
+
+
+                // No explanation needed, we can request the permission.
+
+                ActivityCompat.requestPermissions(this,
+                        new String[]{Manifest.permission.READ_CONTACTS
+                                ,Manifest.permission.CAMERA
+                                ,Manifest.permission.MODIFY_AUDIO_SETTINGS
+                                ,Manifest.permission.RECORD_AUDIO
+                                ,Manifest.permission.WAKE_LOCK
+                                ,Manifest.permission.WRITE_EXTERNAL_STORAGE
+                                },
+                        MY_PERMISSIONS_REQUEST_READ_CONTACTS);
+
+                // MY_PERMISSIONS_REQUEST_READ_CONTACTS is an
+                // app-defined int constant. The callback method gets the
+                // result of the request.
+
+
+
         requestWindowFeature(Window.FEATURE_NO_TITLE);
         getWindow().addFlags(
                 LayoutParams.FLAG_FULLSCREEN
@@ -64,6 +92,7 @@ public class RtcActivity extends Activity implements WebRtcClient.RtcListener {
         VideoRendererGui.setView(vsv, new Runnable() {
             @Override
             public void run() {
+
                 init();
             }
         });
@@ -72,7 +101,9 @@ public class RtcActivity extends Activity implements WebRtcClient.RtcListener {
         remoteRender = VideoRendererGui.create(
                 REMOTE_X, REMOTE_Y,
                 REMOTE_WIDTH, REMOTE_HEIGHT, scalingType, false);
+
         localRender = VideoRendererGui.create(
+
                 LOCAL_X_CONNECTING, LOCAL_Y_CONNECTING,
                 LOCAL_WIDTH_CONNECTING, LOCAL_HEIGHT_CONNECTING, scalingType, true);
 
@@ -80,27 +111,31 @@ public class RtcActivity extends Activity implements WebRtcClient.RtcListener {
         final String action = intent.getAction();
 
         if (Intent.ACTION_VIEW.equals(action)) {
+
             final List<String> segments = intent.getData().getPathSegments();
             callerId = segments.get(0);
         }
     }
 
     private void init() {
+
         Point displaySize = new Point();
         getWindowManager().getDefaultDisplay().getSize(displaySize);
         PeerConnectionParameters params = new PeerConnectionParameters(
                 true, false, displaySize.x, displaySize.y, 30, 1, VIDEO_CODEC_VP9, true, 1, AUDIO_CODEC_OPUS, true);
-
         client = new WebRtcClient(this, mSocketAddress, params, VideoRendererGui.getEGLContext());
+
     }
 
     @Override
     public void onPause() {
+
         super.onPause();
         vsv.onPause();
         if(client != null) {
             client.onPause();
         }
+
     }
 
     @Override
@@ -114,19 +149,23 @@ public class RtcActivity extends Activity implements WebRtcClient.RtcListener {
 
     @Override
     public void onDestroy() {
+
         if(client != null) {
             client.onDestroy();
         }
         super.onDestroy();
+
     }
 
     @Override
     public void onCallReady(String callId) {
         if (callerId != null) {
             try {
+
                 answer(callerId);
             } catch (JSONException e) {
                 e.printStackTrace();
+
             }
         } else {
             call(callId);
